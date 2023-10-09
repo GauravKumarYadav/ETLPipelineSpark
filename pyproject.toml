@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "etlpipelinespark"
+version = "0.1.0"
+description = "Spark project reading data from destination folder streaming and static"
+authors = ["Gaurav Kumar Yadav <gauravy60@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+pyspark = "^3.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
