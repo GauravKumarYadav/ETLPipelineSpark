@@ -5,8 +5,6 @@ def read_batch(dataclass):
     '''
     Read batch data from a directory
     '''
-    spark = SparkSession.builder.appName('Static').getOrCreate()
-    spark.sparkContext.setLogLevel('WARN')
     batch_data = (
         spark
         .read
@@ -21,5 +19,8 @@ def read_batch(dataclass):
 
 
 if __name__ == "__main__":
+    global spark
+    spark = SparkSession.builder.enableHiveSupport().getOrCreate()
+    spark.sparkContext.setLogLevel('WARN')
     data = BatchData()
     read_batch(data)

@@ -1,0 +1,8 @@
+{
+    "spark.dynamicAllocation.enabled": "false",
+    "spark.app.name": "MySparkApplication",
+    "spark.master": "yarn",
+    "spark.executor.memory": "1g",
+    "spark.executor.cores": "2",
+    "spark.driver.memory": "0.5g"
+}

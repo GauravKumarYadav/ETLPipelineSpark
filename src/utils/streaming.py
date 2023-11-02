@@ -2,12 +2,12 @@ from src.DataClass.DataClasses import StreamingData
 from pyspark.sql import SparkSession
 import os
 
-def read_streaming(dataclass ):
+from src.utils.utils import checkpointLocation
+
+def read_streaming(dataclass):
     '''
     Read streaming data from a directory
     '''
-    spark = SparkSession.builder.appName('Streaming').getOrCreate()
-    spark.sparkContext.setLogLevel('WARN')
     streaming_data = (
         spark
         .readStream
@@ -24,42 +24,39 @@ def write_streaming_console(streaming_data):
     '''
     Write streaming data to console
     '''
-    spark = SparkSession.builder.appName('Streaming').getOrCreate()
-    spark.sparkContext.setLogLevel('WARN')
-
     query = (
         streaming_data
         .writeStream
         .format('console')
         .outputMode('append')
         .trigger(processingTime='10 seconds')
-        .option('checkpointLocation','file://'+os.path.join(os.getcwd(),"Data","checkpoint"))
+        .option('checkpointLocation',checkpointLocation())
         .start()
     )
-
     query.awaitTermination()
 
-def write_streaming_table(streaming_data,table_name:str):
+
+def write_streaming_table(streaming_data,table_name:str,layer:str = "bronze",path:str = None):
     '''
     Write streaming data to table
     '''
-    spark = SparkSession.builder.appName('Streaming').getOrCreate()
-    spark.sparkContext.setLogLevel('WARN')
-
+    if path is None:
+        temp_path =  os.path.join(os.getcwd(),"Data","temp",layer,table_name)
+        os.makedirs(temp_path,exist_ok=True)
+    else:
+        temp_path = path
+        os.makedirs(temp_path,exist_ok=True)
+    
+    temp_path = 'file://'+ temp_path
     query = (
         streaming_data
         .writeStream
-        .format('delta')
         .outputMode('append')
+        .format('parquet')
         .trigger(processingTime='10 seconds')
-        .option('checkpointLocation','file://'+os.path.join(os.getcwd(),"Data","checkpoint"))
-        .table(table_name)
+        .option('checkpointLocation',checkpointLocation())
+        .option('path',temp_path)
+        .start()
     )
-
     query.awaitTermination()
-
-if __name__ == "__main__":
-    dataclass = StreamingData()
-    stream_data = read_streaming(dataclass)
-    write_streaming_console(stream_data)
 
